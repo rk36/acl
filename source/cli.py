@@ -1,7 +1,7 @@
 import click
 import keyring
 import getpass
-from scrapper import attempt
+from source.scrapper import attempt
 from tabulate import tabulate
 
 @click.command()
