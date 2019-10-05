@@ -1,7 +1,7 @@
 import click
 import keyring
 import getpass
-from source.scrapper import attempt
+from scrapper import attempt
 from tabulate import tabulate
 
 @click.command()
@@ -12,26 +12,46 @@ def attendance(roll):
     """
     password = keyring.get_password('ERP', roll)
     saved_password = True
+
+    if password != None:
+        response = attempt(roll, password)
+
+        if not response:
+            click.echo(click.style('Password modified, Enter new password.', fg='green', bold=True))
+            keyring.delete_password('ERP',roll)
+            password = None
+
     if password == None:
         saved_password = False
         password = getpass.getpass("Password: ")
+        response = attempt(roll, password)
+
+        if not response:
+                click.secho('Invalid Credentials, Sorry, try again', fg='red', bold=True)
+                password = getpass.getpass("Password: ")
+                response = attempt(roll, password)
+
+        if not response:
+                click.secho('Invalid Credentials, Sorry, try one more time.', fg='red', bold=True)
+                password = getpass.getpass("Password: ")
+                response = attempt(roll, password)
+
+        if not response:
+                click.secho('Invalid Credentials, 3 incorrect attempts', fg='red', bold=True)
+                exit(0)
+ 
 
     # Fetch attendance from ERP and Pretty Print it on Terminal.
-    
-    response = attempt(roll, password)
-    
-    if not response:
-        click.secho('Invalid Credentials, Login failed.', fg='red', bold=True)
-    else:
-        table = make_table(response)
-        print(tabulate(table, headers=["Subject Name", "Attended", "Percentage"],
-                tablefmt="fancy_grid"))
+    table = make_table(response)
+    print(tabulate(table, headers=["Subject Name", "Attended", "Percentage"],
+            tablefmt="fancy_grid"))
 
-        # Store password locally if not saved already
-        if not saved_password:
-            ans = input("Do you want to store your password locally? (y/N) ")
-            if ans=='y':
-                keyring.set_password('ERP', roll, password)
+    # Store password locally if not saved already
+    if not saved_password:
+        ans = input("Do you want to store your password locally? (y/N) ")
+        if ans=='y':
+            keyring.set_password('ERP', roll, password)
+
 
 def make_table(response):
     result = list()
