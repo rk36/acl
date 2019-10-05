@@ -1,7 +1,7 @@
 import click
 import keyring
 import getpass
-from source.scrapper import attempt
+from scrapper import attempt
 from tabulate import tabulate
 
 @click.command()
@@ -22,24 +22,9 @@ def attendance(roll):
             password = None
 
     if password == None:
+        password = getpass.getpass("Password : ")
+        response,password = ResponseAttempt(roll,password)
         saved_password = False
-        password = getpass.getpass("Password: ")
-        response = attempt(roll, password)
-
-        if not response:
-                click.secho('Invalid Credentials, Sorry, try again', fg='red', bold=True)
-                password = getpass.getpass("Password: ")
-                response = attempt(roll, password)
-
-        if not response:
-                click.secho('Invalid Credentials, Sorry, try one more time.', fg='red', bold=True)
-                password = getpass.getpass("Password: ")
-                response = attempt(roll, password)
-
-        if not response:
-                click.secho('Invalid Credentials, 3 incorrect attempts', fg='red', bold=True)
-                exit(0)
- 
 
     # Fetch attendance from ERP and Pretty Print it on Terminal.
     table = make_table(response)
@@ -63,3 +48,26 @@ def make_table(response):
         result.append(row)
 
     return result
+
+def ResponseAttempt(roll, password):
+
+    response = attempt(roll, password)
+
+    if not response:
+        click.secho('Invalid Credentials, Sorry, try again', fg='red', bold=True)
+        password = getpass.getpass("Password : ")
+        response = attempt(roll, password)
+
+    if not response:
+        click.secho('Invalid Credentials, Sorry, try one more time.', fg='red', bold=True)
+        password = getpass.getpass("Password : ")
+        response = attempt(roll, password)
+
+    if not response:
+        click.secho('Invalid Credentials, 3 incorrect attempts', fg='red', bold=True)
+        exit(0)
+
+    return response,password
+
+
+

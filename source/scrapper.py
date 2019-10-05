@@ -4,20 +4,23 @@ from bs4 import BeautifulSoup
 import click
 import sys 
 
+def NetworkErrorClick():
+    click.echo(click.style('Network error, please check your internet connection and firewall for URL: http://erp.iitbbs.ac.in', fg='red', bold=True))
+    exit(0)
+
+
 def attempt(user, password):
     url = 'http://erp.iitbbs.ac.in'
     browser = RoboBrowser(history=False, parser='html.parser')
     try:
         browser.open(url)
     except:
-        click.echo(click.style('Network error, please check your internet connection and firewall for URL: http://erp.iitbbs.ac.in \n', fg='red', bold=True))
-        exit(0) 
+        NetworkErrorClick()
 
     try:
         form = browser.get_form(action='login.php')
     except:
-        click.echo(click.style('Network error, please check your internet connection and firewall for URL: http://erp.iitbbs.ac.in \n', fg='red', bold=True))
-        exit(0)
+        NetworkErrorClick()
 
     if not form:
         click.echo(click.style('Network error, Unable to fetch form \n', fg='red', bold=True))
@@ -30,8 +33,7 @@ def attempt(user, password):
     try:
         browser.submit_form(form)
     except:
-        click.echo(click.style('Network error, please check your internet connection and firewall for URL: http://erp.iitbbs.ac.in \n', fg='red', bold=True))
-        exit(0)
+        NetworkErrorClick()
 
     if (browser.url != 'http://erp.iitbbs.ac.in/home.php'):
         return False
@@ -41,8 +43,7 @@ def attempt(user, password):
     try:
         browser.open(attendance_link)
     except:
-        click.echo(click.style('Network error, please check your internet connection and firewall for URL: http://erp.iitbbs.ac.in \n', fg='red', bold=True))
-        exit(0)
+        NetworkErrorClick()
 
     soup = BeautifulSoup(browser.response.text, 'html.parser')
     content = soup.find('div', attrs={'id': 'content'})
