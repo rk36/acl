@@ -3,7 +3,7 @@ import keyring
 import getpass
 from source.scrapper import attempt
 from tabulate import tabulate
-from missedClassScrapper import MissedClassDates
+from source.missedClassScrapper import MissedClassDates
 
 @click.command()
 @click.option('-r', '--roll', prompt='Roll Number', help='Enter the Roll Number for ERP Login.')
