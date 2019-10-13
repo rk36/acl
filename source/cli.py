@@ -29,15 +29,25 @@ def attendance(roll):
 
     # Fetch attendance from ERP and Pretty Print it on Terminal.
     attendance_table = make_table(response)
-    show_table(attendance_table)
+    attendance_header = ["Subject Code","Subject Name", "Attended","Percentage"]
+    show_table(attendance_table,attendance_header)
 
     # Fetch missed classes from ERP and Pretty Print it on Terminal.
     ans = input("Do you want to see the missed class(es) date-wise ? (y/N) ")
     if ans=='y':
+        input_subject = []
+        specific_class_ans = input("Do you want to see the missed class(es) of specific subject(s)? (y/N) ")
+        if specific_class_ans=='y':
+            input_subject = [x for x in input("Enter the Subject code(s) seperated by spaces: ").split()]
+
         print("please wait, it may take a while to fetch the information... \n")
         missed_class_response = MissedClassDates(roll,password)
-        missed_class_table = make_missed_class_table(missed_class_response)
-        show_table(missed_class_table)
+        if specific_class_ans !='y':
+             missed_class_table = make_missed_class_table(missed_class_response)
+        else : 
+            missed_class_table = make_specific_sub_missed_class_table(missed_class_response,input_subject)
+        Missed_class_headers =  ["Date","Subject Name", "Attended"]
+        show_table(missed_class_table,Missed_class_headers)
 
         
     # Store password locally if not saved already
@@ -48,25 +58,15 @@ def attendance(roll):
 
 
 def make_table(response):
-    result = list()
-    for (code, data) in response.items():
-        row = list()
-        row.append(data['name'])
-        row.append(data['attended'] + '/' + data['total'])
-        row.append(data['percentage'])
-        result.append(row)
-
+    result = [[data['code'], data['name'], data['attended'] + '/' + data['total'],data['percentage']] for (code, data) in response.items()]
     return result
 
 def make_missed_class_table(response):
-    result = list()
-    for (Date, data) in response.items():
-        row = list()
-        row.append(data['Date'])
-        row.append(data['subjectName'])
-        row.append(data['attended'] + '/' + data['total'])
-        result.append(row)
+    result  = [[data['Date'], data['subjectName'], data['attended'] + '/' + data['total']] for (Date, data) in response.items()]  
+    return result
 
+def make_specific_sub_missed_class_table(response,valid_subjectC_code):
+    result = [[data['Date'], data['subjectName'], data['attended'] + '/' + data['total']] for (Date, data) in response.items() if(data['code'] in valid_subjectC_code)]
     return result
 
 def ResponseAttempt(roll, password):
@@ -90,8 +90,8 @@ def ResponseAttempt(roll, password):
     return response,password
 
 
-def show_table(table):
-    print(tabulate(table, headers=["Date","Subject Name", "Attended"],tablefmt="fancy_grid"))
+def show_table(table,table_headers):
+    print(tabulate(table, headers=table_headers,tablefmt="fancy_grid"))
 
 
 

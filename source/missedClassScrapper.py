@@ -60,10 +60,8 @@ def MissedClassDates(user, password):
 def RangeOfDate(startDate,EndDate):
     start = datetime.datetime.strptime(startDate, "%Y-%m-%d")
     end = datetime.datetime.strptime(EndDate, "%Y-%m-%d")
-    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days+1)]
-    DateRange = []
-    for date in date_generated:
-        DateRange.append(date.strftime("%Y-%m-%d")) 
+    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days+1) if (start + datetime.timedelta(days=x)).weekday() != 6]
+    DateRange = [date.strftime("%Y-%m-%d") for date in date_generated]
     return DateRange
 
 
@@ -99,6 +97,7 @@ def ResponseTable(Dates,browser):
             if(total_class != attended_class):
                 result[Datevalue] = {
                 'Date' :  Datevalue,
+                'code' : code,
                 'subjectName' : subject,
                 'attended': attended_class,
                 'total': total_class,
